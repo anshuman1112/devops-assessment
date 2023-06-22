@@ -30,6 +30,12 @@ There is a [postman collection](DevOps-Assessment.postman_collection.json). Feel
 
 #### Level - 2 : Build a CD pipeline
 1. Create a CD pipeline in Jenkins CI server (or any other CI server of your choice)
+
+    ```
+    Used Github actions workflow
+    Pipeline workflow can be found in .github/worfklows directory
+    ```
+
 2. As part of the pipeline, 
     1. Check out the code
     2. Build it
@@ -48,6 +54,11 @@ There is a [postman collection](DevOps-Assessment.postman_collection.json). Feel
     4. Create a private subnet 
     5. Provision EC2 instances; refer to [app-install.sh](app-install.sh); use it as user data to initialize an app on VM startup
     6. Configure classic Elastic Load Balancer to route traffic to the EC2 instances 
+
+        ```
+        terraform template - terraform/main.tf file
+        ```
+
 
 #### Level - 4 : Deploy the solution
 1. Complete Level - 3
