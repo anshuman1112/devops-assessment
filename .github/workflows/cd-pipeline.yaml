@@ -1,0 +1,66 @@
+name: CD Pipeline
+
+on:
+  push:
+    branches: [pipeline-test]
+  
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Build with Maven
+      run: |
+        cd my-app
+        mvn clean install
+
+    - name: Official SonarQube Scan
+      uses: SonarSource/sonarqube-scan-action@v1.2.0
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      with:
+        projectBaseDir: .
+        args: "-Dsonar.projectKey=${{ secrets.SONAR_PROJECT_KEY }} -Dsonar.organization=anshuman1112 -Dsonar.java.binaries=my-app/target/classes"
+        entrypoint: /bin/bash
+    
+    - name: Run the Java springboot application
+      run: |
+        cd my-app/target
+        ls -al
+        java -jar my-app-0.0.1-SNAPSHOT.jar &
+        sleep 20
+    
+    - name: Install Newman
+      run: |
+          npm install -g newman
+
+    - name: Test API with Postman
+      run: |
+          newman run DevOps-Assessment.postman_collection.json --bail || echo "::set-output name=status::failed"
+          echo "::set-output name=status::passed"
+
+    - name: Check Newman test result
+      run: |
+        status="${{ steps.newman.outputs.status }}"
+        if [[ "$status" == "failed" ]]; then
+          echo "Newman tests failed"
+          exit 1
+        else
+          echo "Newman tests passed"
+        fi
+    
+    
+    - name: Build Docker image
+      run: docker build -t silentassassin11/muthoot-repo:v1 .
+
+    - name: Push to Docker Hub
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker push silentassassin11/muthoot-repo:v1
