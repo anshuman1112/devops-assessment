@@ -2,7 +2,7 @@ name: CD Pipeline
 
 on:
   push:
-    branches: [pipeline-test]
+    branches: [main]
   
   workflow_dispatch:
 
